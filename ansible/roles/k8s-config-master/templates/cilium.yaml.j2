@@ -1,0 +1,36 @@
+{# tempates/cilium.j2 #}
+namespaceOverride: "{{ cilium_namespace }}"
+
+ipam:
+  mode: kubernetes          
+
+kubeProxyReplacement: true
+k8sServiceHost: "{{ api_endpoint_host }}"
+k8sServicePort: "{{ api_endpoint_port }}"
+
+routingMode: native
+autoDirectNodeRoutes: true
+ipv4NativeRoutingCIDR: "{{ podSubnet }}"
+
+operator:
+  replicas: {{ cilium_operator_replicas }}
+
+l2announcements:
+  enabled: {{ cilium_l2_enabled | bool | lower }}
+
+gatewayAPI:
+  enabled: {{ cilium_gateway_api_enabled | bool | lower }}
+  gatewayClass:
+    create: "true"
+
+resources:
+  requests: { cpu: 100m, memory: 512Mi }
+  limits: { cpu: 500m, memory: 1Gi }
+
+prometheus:
+  enabled: true
+  serviceMonitor:
+    enabled: false
+
+hubble:
+  enabled: false

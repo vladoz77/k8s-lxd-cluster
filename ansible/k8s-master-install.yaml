@@ -1,0 +1,11 @@
+- name: master config
+  hosts: master
+  become: true
+  roles:
+  - role: k8s-common-config
+  - role: k8s-ha-master-config
+    when: ha_enabled
+  - role: k8s-config-master
+    when: inventory_hostname == groups['master'][0]
+  - role: k8s-join-master
+    when: ha_enabled

@@ -1,0 +1,77 @@
+# tasks/calico.yaml
+- name: Install calico crds
+  kubernetes.core.k8s:
+    src: "{{ calico_crds }}"
+    state: present
+    kubeconfig: "{{ base_kube_conf_dir }}"
+
+- name: Install calico operator
+  kubernetes.core.k8s:
+    src: "{{ tigera_operator }}"
+    state: present
+    kubeconfig: "{{ base_kube_conf_dir }}"
+
+- name: Install kubernetes-service-endpoint.yaml
+  kubernetes.core.k8s:
+    template: "{{ kubernetes_service_endpoint }}"
+    state: present
+    kubeconfig: "{{ base_kube_conf_dir }}"
+  when: calico_ebpf_enabled | bool
+
+- name: Copy calico template
+  ansible.builtin.template:
+    src: "{{ calico_custom_resources }}"
+    dest: "/tmp/calico-config.yaml"
+
+- name: Install calico custom resources
+  kubernetes.core.k8s:
+    template: "{{ calico_custom_resources }}"
+    state: present
+    kubeconfig: "{{ base_kube_conf_dir }}"
+
+- name: Wait for namespace calico-system to be created
+  kubernetes.core.k8s_info:
+    kind: Namespace
+    name: calico-system
+    kubeconfig: "{{ base_kube_conf_dir }}"
+  register: ns_info
+  until: ns_info is not none and 'resources' in ns_info and ns_info.resources | length > 0
+  retries: 20
+  delay: 5
+
+- name: Create service felix-metrics-svc
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ base_kube_conf_dir }}"
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: felix-metrics-svc
+        namespace: calico-system
+      spec:
+        clusterIP: None
+        selector:
+          k8s-app: calico-node
+        ports:
+        - port: 9091
+          targetPort: 9091
+
+- name: Create service typha-metrics-svc
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ base_kube_conf_dir }}"
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: typha-metrics-svc
+        namespace: calico-system
+      spec:
+        clusterIP: None
+        selector:
+          k8s-app: calico-typha
+        ports:
+        - port: 9093
+          targetPort: 9093
+

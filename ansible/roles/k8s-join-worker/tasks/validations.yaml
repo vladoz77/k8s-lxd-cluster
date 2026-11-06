@@ -1,0 +1,58 @@
+# tasks/validations.yaml
+- name: Validate required variables
+  ansible.builtin.assert:
+    that:
+      - interface_name is defined
+      - ha_enabled is defined
+      - k8s_first_master is defined
+    fail_msg: >-
+      Не заданы обязательные переменные: interface_name, ha_enabled,
+      k8s_first_master. Проверь inventories/<env>/group_vars/all.yaml
+      и group_vars/all.yaml рядом с плейбуком.
+    quiet: true
+
+- name: Validate HA variables
+  ansible.builtin.assert:
+    that:
+      - vip_address is defined
+      - vip_address is match('^\d{1,3}(\.\d{1,3}){3}$')
+      - vip_port is defined
+      - vip_port | int > 0
+    fail_msg: "При ha_enabled=true нужны корректные vip_address и vip_port"
+    quiet: true
+  when: ha_enabled | bool
+
+- name: Validate first master is in inventory
+  ansible.builtin.assert:
+    that:
+      - groups['master'] is defined
+      - groups['master'] | length > 0
+      - k8s_first_master in groups['master']
+    fail_msg: "k8s_first_master ({{ k8s_first_master }}) не найден в группе master"
+    quiet: true
+
+- name: Validate network facts
+  ansible.builtin.assert:
+    that:
+      - ansible_facts[interface_name] is defined
+      - ansible_facts[interface_name].ipv4 is defined
+    fail_msg: "На {{ inventory_hostname }} нет интерфейса {{ interface_name }} или у него нет IPv4"
+    quiet: true
+
+- name: Validate first master facts (non-HA)
+  ansible.builtin.assert:
+    that:
+      - hostvars[k8s_first_master].ansible_facts[interface_name] is defined
+    fail_msg: >-
+      Факты {{ k8s_first_master }} не собраны, а api_endpoint_host в non-HA
+      зависит от них. Запусти play, который собирает факты master.
+    quiet: true
+  when: not (ha_enabled | bool)
+
+- name: Validate API endpoint
+  ansible.builtin.assert:
+    that:
+      - api_endpoint_host | trim | length > 0
+      - api_endpoint_port | int > 0
+    fail_msg: "api_endpoint_host/api_endpoint_port вычислились пустыми"
+    quiet: true

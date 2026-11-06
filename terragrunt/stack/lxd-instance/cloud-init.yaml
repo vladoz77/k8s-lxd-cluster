@@ -1,0 +1,28 @@
+#cloud-config
+# packages:
+# - parted
+# - xfsprogs
+# - python3-libdnf
+# - kernel-modules-extra
+
+users:
+- name: vlad
+  passwd: "$6$rii/kmJsGG3MfHhs$RrZQGTFXkKoTfqErjTwBD52.GGkg6k58Ka6QWnJWu1mx4paMfD7l5LqN34hfKqeD7P6VGNX6xZJlkGhXxk9ok1"
+  shell: /bin/bash
+  groups: [ wheel ]
+  sudo: [ "ALL=(ALL) NOPASSWD:ALL" ]
+  ssh_authorized_keys:
+    - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH1FAFZVaFV0XpLYsrH7fQHY6llL08uFH7KjvDjKJZth vlad@fedora
+    - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPy/LhC6HQAguTiMF1z+2NhJzZgfn8hOxLGsAXbsrjm5 vlad@RU62S-KOVALEV2
+    - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBNIXX9SmZunqdyAFWsUGRoWAwh9cH6aFePRHTe/06WA vlad@rocky
+
+# runcmd:
+# # Data disk config
+# - parted -s /dev/sdb mklabel gpt
+# - parted -s /dev/sdb mkpart primary xfs 0% 100%
+# - mkfs.xfs -f /dev/sdb1
+# - mkdir -p /mnt/data
+# - mount /dev/sdb1 /mnt/data
+# - echo '/dev/sdb1 /mnt/data xfs defaults,nofail,discard 0 2' >> /etc/fstab
+
+

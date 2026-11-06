@@ -1,0 +1,6 @@
+api_endpoint_host: >-
+  {{ vip_address if ha_enabled | bool
+     else hostvars[groups['master'][0]].ansible_facts[interface_name].ipv4.address }}
+api_endpoint_port: "{{ vip_port if ha_enabled | bool else 6443 }}"
+
+k8s_first_master: "{{ k8s_first_master_override | default(groups['master'] | sort | first) }}"

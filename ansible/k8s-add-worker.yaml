@@ -1,0 +1,6 @@
+- name: add node
+  hosts: worker
+  become: true
+  roles:
+  - role: k8s-common-config
+  - role: k8s-join-worker

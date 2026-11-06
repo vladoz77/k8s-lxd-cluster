@@ -1,0 +1,62 @@
+# tasks/join-master.yaml
+- name: Create join token
+  ansible.builtin.command: kubeadm token create --ttl 30m
+  register: join_token
+  delegate_to: "{{ k8s_first_master }}"
+  changed_when: true
+  no_log: true
+
+- name: Get discovery-token-ca-cert-hash
+  ansible.builtin.shell:
+    executable: /bin/bash
+    cmd: |
+      set -o pipefail
+      openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt |
+      openssl rsa -pubin -outform der 2>/dev/null |
+      openssl dgst -sha256 -hex | sed 's/^.* //'
+  register: ca_hash
+  delegate_to: "{{ k8s_first_master }}"
+  changed_when: false
+
+- name: Upload control-plane certs
+  ansible.builtin.shell:
+    executable: /bin/bash
+    cmd: set -o pipefail; kubeadm init phase upload-certs --upload-certs | tail -1
+  register: cert_key
+  delegate_to: "{{ k8s_first_master }}"
+  changed_when: true
+  no_log: true
+
+- name: Join control plane
+  block:
+    - name: Render join config
+      ansible.builtin.template:
+        src: kubeadm-join-master.yaml.j2
+        dest: /root/kubeadm-join-master.yaml
+        mode: "0600"
+      no_log: true
+
+    - name: Run kubeadm join
+      ansible.builtin.command: kubeadm join --config /root/kubeadm-join-master.yaml
+      changed_when: true
+  always:
+    - name: Remove join config with secrets
+      ansible.builtin.file:
+        path: /root/kubeadm-join-master.yaml
+        state: absent
+
+- name: Create .kube directory
+  ansible.builtin.file:
+    path: "{{ home_kube_dir }}"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0700"
+
+- name: Copy admin kubeconfig
+  ansible.builtin.copy:
+    src: "{{ base_kube_conf_dir }}"
+    dest: "{{ home_kube_dir }}/config"
+    remote_src: true
+    owner: "{{ username }}"
+    group: "{{ username }}"

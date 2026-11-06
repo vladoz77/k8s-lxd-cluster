@@ -1,0 +1,104 @@
+# Default Username and password 
+username: user
+password: password
+
+# Default kubernetes version
+kubernetesVersion: '1.33'
+kubernetesSubversion: '2'
+
+# Proxy settings
+proxy_url: ""
+
+# Containerd url
+containerd_version: '2.3.3'
+crictl_version: v1.36.0
+runc_version: '1.3.2'
+
+containerd_url: https://github.com/containerd/containerd/releases/download/v{{ containerd_version }}/containerd-{{ containerd_version }}-linux-amd64.tar.gz
+containerd_service_url: https://raw.githubusercontent.com/containerd/containerd/v{{ containerd_version }}/containerd.service
+runc_url: https://github.com/opencontainers/runc/releases/download/v{{ runc_version }}/runc.amd64
+containerd_proxy_enabled: false
+containerd_http_proxy: "{{ proxy_url }}"
+containerd_https_proxy: "{{ proxy_url }}"
+containerd_sandbox_image: "registry.k8s.io/pause:3.10"
+containerd_no_proxy: 
+  - localhost
+  - 127.0.0.1
+  - 10.0.0.0/8
+  - 172.16.0.0/12
+  - 192.168.0.0/16
+  - .devhomelab.site
+  - .svc
+  - .cluster.local
+  - .lxd.local
+  - .homelab.local
+
+packages:
+- wget
+- curl
+- iproute-tc
+- vim
+- git
+- bash-completion
+- nfs-utils
+- python3
+- kubectl.x86_64
+- kubelet.x86_64
+- kubeadm.x86_64
+- ipvsadm
+- python3-pip
+- sysstat
+- jq
+- net-tools
+- tree
+- traceroute
+- iscsi-initiator-utils
+- nfs-utils
+- nfs4-acl-tools
+- tcpdump
+- unzip
+- tar
+
+#Req pip module
+pip_modules:
+- kubernetes
+- oauthlib>=3.2.0
+- requests-oauthlib
+
+# modules list
+modules:
+- overlay
+- br_netfilter
+- nf_nat
+- xt_REDIRECT
+- xt_owner
+- iptable_nat
+- iptable_mangle
+- iptable_filter
+- iscsi_tcp
+- nfs
+- dm_crypt
+
+# systemctl parameters
+sysctl_params:
+  - key: net.bridge.bridge-nf-call-ip6tables
+    value: 1
+  - key: net.bridge.bridge-nf-call-iptables
+    value: 1
+  - key: net.ipv4.ip_forward
+    value: 1
+  - key: vm.max_map_count
+    value: 262144
+  - key: fs.inotify.max_user_instances
+    value: 512
+  - key: fs.inotify.max_user_watches
+    value: 1000
+  - key: net.ipv4.ip_nonlocal_bind
+    value: 1
+
+# Enable dockerhub mirror
+dockerhubMirror: false
+dockerhubMirrorURLs: 
+  - "https://mirror.gcr.io/v2"
+  - "https://cr.yandex/mirror"
+

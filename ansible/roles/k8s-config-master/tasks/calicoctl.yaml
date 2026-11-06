@@ -1,0 +1,32 @@
+- name: Check if calicoctl is installed
+  ansible.builtin.stat:
+    path: "{{ calicoctl_intsall_path }}"
+  register: calicoctl_bin
+
+- name: Download calicoctl binary
+  ansible.builtin.get_url:
+    url: "https://github.com/projectcalico/calico/releases/download/{{ calicoctl_version }}/calicoctl-linux-amd64"
+    dest: "{{ calicoctl_intsall_path }}"
+    mode: '0755'
+  environment:
+    http_proxy: "{{ proxy_url | default(omit)}}"
+    https_proxy: "{{ proxy_url | default(omit)}}"
+  when: not calicoctl_bin.stat.exists
+
+- name: Ensure /etc/calico directory exists
+  ansible.builtin.file:
+    path: /etc/calico
+    state: directory
+    mode: '0755'
+
+- name: Configure calicoctl datastore (kubernetes backend)
+  ansible.builtin.copy:
+    dest: /etc/calico/calicoctl.cfg
+    mode: '0644'
+    content: |
+      apiVersion: projectcalico.org/v3
+      kind: CalicoAPIConfig
+      metadata:
+      spec:
+        datastoreType: "kubernetes"
+        kubeconfig: "{{ base_kube_conf_dir }}"

@@ -1,0 +1,15 @@
+# tasks/nodelocaldns.yaml
+- name: get kube-dns ip
+  kubernetes.core.k8s:
+    api_version: v1
+    kind: service
+    name: kube-dns
+    namespace: kube-system
+    kubeconfig: "{{ base_kube_conf_dir }}"
+  register: kube_dns
+
+- name: create localdns
+  kubernetes.core.k8s:
+    template: "{{ localdns_config }}"
+    state: present
+    kubeconfig: "{{ base_kube_conf_dir }}"

@@ -1,0 +1,28 @@
+# tasks/validations.yaml
+- name: Validate base variables
+  ansible.builtin.assert:
+    that:
+      - ha_enabled is defined
+      - vip_address is defined
+      - vip_port is defined
+      - interface_name is defined
+    fail_msg: >-
+      Не заданы обязательные переменные для join master:
+      ha_enabled, vip_address, vip_port, interface_name
+      Проверь group_vars/all.yaml.
+    quiet: true
+
+- name: Validate network facts
+  ansible.builtin.assert:
+    that:
+      - ansible_facts[interface_name] is defined
+      - ansible_facts[interface_name].ipv4 is defined
+    fail_msg: "На {{ inventory_hostname }} нет интерфейса {{ interface_name }} или у него нет IPv4"
+    quiet: true
+
+- name: Validate derived endpoint
+  ansible.builtin.assert:
+    that:
+      - api_endpoint_host | length > 0
+      - api_endpoint_port | int > 0
+    quiet: true

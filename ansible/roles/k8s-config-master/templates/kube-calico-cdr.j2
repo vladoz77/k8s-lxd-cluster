@@ -1,0 +1,76 @@
+{# tempates/kube-calico-crd.j2 #}
+# This section includes base Calico installation configuration.
+# For more information, see: https://docs.tigera.io/calico/latest/reference/installation/api#operator.tigera.io/v1.Installation
+apiVersion: operator.tigera.io/v1
+kind: Installation
+metadata:
+  name: default
+spec:
+  typhaMetricsPort: 9093
+  # Configures Calico networking.
+  calicoNetwork:
+    {% if calico_encapsulation_type == "NONE" -%}
+    bgp: Enabled
+    {% else -%}
+    bgp: Disabled
+    {% endif -%}
+    {% if calico_ebpf_enabled | bool -%}
+    linuxDataplane: BPF
+    {% else -%}
+    linuxDataplane: Nftables
+    {% endif -%}
+    ipPools:
+    - name: ipv4-ippool
+      blockSize: 26
+      cidr: "{{ podSubnet }}"
+      {% if calico_encapsulation_type == "VXLAN" -%}
+      encapsulation: VXLANCrossSubnet
+      {% elif calico_encapsulation_type == "IPIP" -%}
+      encapsulation: IPIP
+      {% elif calico_encapsulation_type == "NONE" -%}
+      encapsulation: None
+      {% endif -%}
+      natOutgoing: Enabled
+      nodeSelector: all()
+
+---
+# This section enable prometheus metrics in Felix.
+apiVersion: crd.projectcalico.org/v1
+kind: FelixConfiguration
+metadata:
+  name: default
+spec:
+  prometheusMetricsEnabled: true
+  prometheusMetricsPort: 9091
+  {% if calico_ebpf_enabled | bool -%}
+  bpfConnectTimeLoadBalancing: "Disabled"
+  bpfKubeProxyIptablesCleanupEnabled: false
+  bpfExternalServiceMode: "DSR"
+  {% endif %}
+
+---
+# This section configures the Calico API server.
+# For more information, see: https://docs.tigera.io/calico/latest/reference/installation/api#operator.tigera.io/v1.APIServer
+apiVersion: operator.tigera.io/v1
+kind: APIServer
+metadata:
+  name: default
+spec: {}
+
+{% if goldman_enabled -%}
+---
+# Configures the Calico Goldmane flow aggregator.
+apiVersion: operator.tigera.io/v1
+kind: Goldmane
+metadata:
+  name: default
+{% endif %}
+
+{% if whisker_enabled %}
+---
+# Configures the Calico Whisker observability UI.
+apiVersion: operator.tigera.io/v1
+kind: Whisker
+metadata:
+  name: default
+{% endif %}

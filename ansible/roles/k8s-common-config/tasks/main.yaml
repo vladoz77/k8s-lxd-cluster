@@ -1,0 +1,8 @@
+# Config-node
+- name: Config nodes
+  ansible.builtin.include_tasks: tasks/config-node.yaml
+
+# Config containerd
+- name: config containerd
+  ansible.builtin.include_tasks: tasks/containerd.yaml
+    

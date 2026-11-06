@@ -1,0 +1,5 @@
+{# templates/containerd-http-proxy.conf.j2 #}
+[Service]
+Environment="HTTPS_PROXY={{ containerd_https_proxy }}"
+Environment="HTTP_PROXY={{ containerd_http_proxy }}"
+Environment="NO_PROXY={{ containerd_no_proxy | join(',') }}"

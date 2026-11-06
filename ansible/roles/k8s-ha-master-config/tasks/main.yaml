@@ -1,0 +1,3 @@
+# Config ha 
+- name: ha requiment install
+  ansible.builtin.include_tasks: tasks/ha-config.yaml

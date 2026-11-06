@@ -1,0 +1,27 @@
+global
+  chroot      /var/lib/haproxy
+  pidfile     /var/run/haproxy.pid
+  maxconn     4000
+  user        haproxy
+  group       haproxy
+  daemon
+
+defaults
+  log     global
+  mode    tcp
+  retries 2
+  timeout client 30m
+  timeout connect 4s
+  timeout server 30m
+  timeout check 5s
+
+frontend kubernetes-frontend
+  bind *:{{ vip_port }}
+  default_backend kubernetes-backend
+
+
+backend kubernetes-backend
+  balance roundrobin
+{% for host in groups['master'] %}
+  server {{hostvars[host].ansible_facts.hostname}} {{ hostvars[host].ansible_facts[interface_name].ipv4.address }}:6443 check
+{% endfor %}

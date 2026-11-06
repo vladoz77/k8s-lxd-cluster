@@ -1,0 +1,13 @@
+- name: restart_haproxy
+  ansible.builtin.systemd_service:
+    name: haproxy
+    state: restarted
+    enabled: true
+    daemon_reload: true
+
+- name: restart_keepalived
+  ansible.builtin.systemd_service:
+    name: keepalived
+    state: restarted
+    enabled: true
+    daemon_reload: true

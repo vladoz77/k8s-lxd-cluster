@@ -1,0 +1,10 @@
+# Enabeled HA kubernetes master (true or false)
+ha_enabled: false
+vip_address: 192.168.1.222
+vip_port: 8443
+interface_name: enp5s0
+
+# Packages need for ha config
+ha_packages:
+  - haproxy
+  - keepalived

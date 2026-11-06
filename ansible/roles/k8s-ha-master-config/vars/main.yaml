@@ -1,0 +1,7 @@
+# Default path for haproxy and keeplived
+haproxy_config_tempate: haproxy.cfg.j2
+haproxy_config_dir: /etc/haproxy/haproxy.cfg
+keepalived_config_template: keepalived.conf.j2
+keepalived_check_script_template: check_apiserver.sh.j2
+keepalived_config_dir: /etc/keepalived/keepalived.conf
+keepalived_check_script_dir: /etc/keepalived/check_apiserver.sh

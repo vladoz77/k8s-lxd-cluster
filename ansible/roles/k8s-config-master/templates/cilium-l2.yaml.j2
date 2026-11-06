@@ -1,0 +1,19 @@
+{# tempates/cilium-l2.j2 #}
+apiVersion: cilium.io/v2
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: main-pool
+spec:
+  blocks:
+    - start: {{ cilium_lb_pool_start }}
+      stop: {{ cilium_lb_pool_stop }}
+---
+apiVersion: cilium.io/v2alpha1
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: default-l2-policy
+spec:
+  interfaces:
+    - ^{{ interface_name }}$
+  externalIPs: true
+  loadBalancerIPs: true

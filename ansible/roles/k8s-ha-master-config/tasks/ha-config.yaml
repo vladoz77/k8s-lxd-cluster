@@ -1,0 +1,38 @@
+- name: check haproxy is exists
+  ansible.builtin.stat:
+    path: "{{haproxy_config_dir}}"
+  register: haproxy_conf
+
+- name: check keepalived is exists
+  ansible.builtin.stat:
+    path: "{{keepalived_config_dir}}"
+  register: keepalived_conf
+
+- name: install haproxy and keeplived
+  ansible.builtin.yum:
+    name: "{{ ha_packages }}"
+    state: present
+    update_cache: true
+  when: not keepalived_conf.stat.exists and not haproxy_conf.stat.exists
+
+- name: create config haproxy
+  ansible.builtin.template:
+    src: "{{ haproxy_config_tempate }}"
+    dest: "{{ haproxy_config_dir }}"
+    mode: '0600'
+  when: not haproxy_conf.stat.exists
+  notify: restart_haproxy
+
+- name: start handler force
+  meta: flush_handlers
+
+- name: create config keepalived
+  ansible.builtin.template:
+    src: "{{ keepalived_config_template }}"
+    dest: "{{ keepalived_config_dir }}"
+    mode: '0600'
+  when: not keepalived_conf.stat.exists
+  notify: restart_keepalived
+
+- name: start handler force
+  meta: flush_handlers

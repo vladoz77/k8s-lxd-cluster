@@ -1,0 +1,43 @@
+# tasks/main.yaml
+- name: Validate variables
+  ansible.builtin.include_tasks: validations.yaml
+
+- name: Check if node is already initialized
+  ansible.builtin.stat:
+    path: /etc/kubernetes/manifests/kube-apiserver.yaml
+  register: apiserver_manifest
+
+- name: Init first control plane
+  ansible.builtin.include_tasks: cluster-init.yaml
+  when:
+    - inventory_hostname == k8s_first_master
+    - not apiserver_manifest.stat.exists
+
+- name: Wait for API endpoint (VIP / LB)
+  ansible.builtin.uri:
+    url: "https://{{ api_endpoint_host }}:{{ api_endpoint_port }}/readyz"
+    validate_certs: false
+    status_code: 200
+  register: endpoint_api
+  until: endpoint_api.status == 200
+  retries: 30
+  delay: 5
+
+- name: Install CNI and addons
+  when: inventory_hostname == k8s_first_master
+  block:
+    - name: Install calico
+      ansible.builtin.include_tasks: calico.yaml
+      when: cni_plugin == 'calico'
+
+    - name: Install calicoctl
+      ansible.builtin.include_tasks: calicoctl.yaml
+      when: calicoctl_enabled and cni_plugin == 'calico'
+
+    - name: Install cilium
+      ansible.builtin.include_tasks: cilium.yaml
+      when: cni_plugin == 'cilium'
+
+    - name: Install nodelocaldns
+      ansible.builtin.include_tasks: nodelocaldns.yaml
+      when: nodelocaldns | bool

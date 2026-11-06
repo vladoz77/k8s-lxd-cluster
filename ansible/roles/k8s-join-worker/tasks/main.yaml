@@ -1,0 +1,12 @@
+# tasks/main.yaml
+- name: Validate variables
+  ansible.builtin.include_tasks: validations.yaml
+
+- name: Check if node is already joined
+  ansible.builtin.stat:
+    path: /etc/kubernetes/kubelet.conf
+  register: kubelet_conf
+
+- name: Join worker
+  ansible.builtin.include_tasks: join-worker.yaml
+  when: not kubelet_conf.stat.exists

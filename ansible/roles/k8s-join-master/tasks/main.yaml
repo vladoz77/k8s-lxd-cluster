@@ -1,0 +1,16 @@
+# tasks/main.yaml
+- name: Validate variables
+  ansible.builtin.include_tasks: validations.yaml
+
+- name: Check if node is already a control plane
+  ansible.builtin.stat:
+    path: /etc/kubernetes/manifests/kube-apiserver.yaml
+  register: apiserver_manifest
+
+- name: Join control plane
+  ansible.builtin.include_tasks: join-master.yaml
+  when:
+    - ha_enabled | bool
+    - inventory_hostname != k8s_first_master
+    - not apiserver_manifest.stat.exists
+

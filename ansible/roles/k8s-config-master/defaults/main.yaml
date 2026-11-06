@@ -1,0 +1,61 @@
+# defaults/main.yaml
+# kubernetes domain name
+kube_domain_name: cluster.local
+
+# kube dir default
+base_kube_conf_dir: /etc/kubernetes/admin.conf
+home_kube_dir: /home/{{ username }}/.kube
+local_kubeconfig_dir: kubeconfig
+
+# Enabeled HA kubernetes master (true or false)
+ha_enabled: false
+vip_address: 192.168.1.222
+vip_port: 8443
+
+# network config
+podSubnet: 10.244.0.0/16
+serviceSubnet: 10.243.0.0/16
+
+#kubelet configuration
+system_reserved: true
+system_memory: 512Mi
+system_cpu: 500m
+system_ephemeral_storage: 5Gi
+container_log_max_size: 1Mi
+container_log_max_file: 3
+
+# Calico 
+# CNI plugin (calico or none)
+cni_plugin: calico
+
+calico_version: v3.29.2
+calico_ebpf_enabled: false
+# Choose calico calico encapsulation NONE, IPIP, VXLAN
+calico_encapsulation_type: NONE
+calico_gateway_api_enabled: false
+goldman_enabled: false
+whisker_enabled: false
+
+# calicoctl installation
+calicoctl_enabled: true
+calicoctl_version: v3.22.2
+calicoctl_intsall_path: /usr/local/bin/calicoctl
+
+# Cilium
+cilium_version: "1.18.0"           
+cilium_namespace: cilium-system
+cilium_operator_replicas: 2
+cilium_gateway_api_enabled: true
+cilium_l2_enabled: true
+cilium_lb_pool_start: 172.10.10.200
+cilium_lb_pool_stop: 172.10.10.250
+gateway_api_version: v1.3.0        
+helm_version: v3.17.0
+helm_install_path: /usr/local/bin/helm
+
+
+# Enable nodelocaldns (true or false)
+nodelocaldns: false
+nodelocaldns_address: 169.254.20.10
+nodelocaldns_image: "registry.k8s.io/dns/k8s-dns-node-cache:1.23.1"
+

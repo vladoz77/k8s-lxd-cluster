@@ -1,0 +1,100 @@
+# prod/group_vars/all.yaml
+packages:
+- wget
+- iproute-tc
+- vim
+- git
+- bash-completion
+- nfs-utils
+- kubectl.x86_64
+- kubelet.x86_64
+- kubeadm.x86_64
+- ipvsadm
+- python3-pip
+- sysstat
+- jq
+- net-tools
+- tree
+- traceroute
+- iscsi-initiator-utils
+- nfs-utils
+- nfs4-acl-tools
+- tcpdump
+- unzip
+- cryptsetup
+- tar
+- python3-packaging
+- bind-utils
+- nftables
+
+modules:
+  - overlay
+  - br_netfilter
+  - nf_nat
+  - nf_conntrack
+  - iscsi_tcp
+  - nfs
+  - dm_crypt
+
+# containerd config
+containerd_version: '2.3.3'
+containerd_proxy_enabled: true
+containerd_http_proxy: "{{ proxy_url }}"
+containerd_https_proxy: "{{ proxy_url }}"
+containerd_no_proxy: 
+  - localhost
+  - 127.0.0.1
+  - 10.0.0.0/8
+  - 172.16.0.0/16
+  - 192.168.0.0/16
+  - 172.10.0.0/16
+  - .devhomelab.site
+  - .svc
+  - .cluster.local
+  - .lxd.local
+  - .homelab.local
+
+dockerhubMirror: true
+dockerhubMirrorURLs:
+- "https://mirror.gcr.io/v2"
+
+# proxy settings 
+proxy_url: http://10.84.101.69:10808
+
+# Kubernetes config
+kubernetesVersion: '1.35'
+kubernetesSubversion: '0'
+interface_name: eth0
+local_kubeconfig_dir: /home/vlad/.kube
+podSubnet: 10.100.0.0/16
+serviceSubnet: 10.200.0.0/16
+skip_kubeproxy: true
+
+# CNI plugin
+cni_plugin: calico
+
+# cilium
+cilium_version: "1.18.0"     
+cilium_lb_pool_start: 172.10.10.200
+cilium_lb_pool_stop: 172.10.10.250
+
+# Calico config
+calico_ebpf_enabled: false
+calico_version: v3.31.3
+calicoctl_version: v3.31.3
+calico_encapsulation_type: NONE
+goldman_enabled: false
+whisker_enabled: false
+
+# Username
+username: vlad
+password: '8231'
+
+# Enable nodelocaldns (true or false)
+nodelocaldns: true
+nodelocaldns_address: 169.254.20.10
+
+# Enabeled HA kubernetes master (true or false)
+ha_enabled: true
+vip_address: 172.10.10.100
+vip_port: 8443

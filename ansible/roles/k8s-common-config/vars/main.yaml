@@ -1,0 +1,10 @@
+# repo for docker
+docker_repo: https://download.docker.com/linux/centos/$releasever/$basearch/stable
+docker_gpg_key: https://download.docker.com/linux/centos/gpg
+
+# repo for k8s
+kubernetes_repo: https://pkgs.k8s.io/core:/stable:/v{{ kubernetesVersion }}/rpm/
+kubernetes_gpg_key: https://pkgs.k8s.io/core:/stable:/v{{ kubernetesVersion }}/rpm/repodata/repomd.xml.key
+
+# crictl url download
+crictl_url_download: https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ crictl_version }}/crictl-{{ crictl_version }}-linux-amd64.tar.gz

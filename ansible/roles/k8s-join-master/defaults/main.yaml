@@ -1,0 +1,3 @@
+# kube dir default
+base_kube_conf_dir: /etc/kubernetes/admin.conf
+home_kube_dir: /home/{{ username }}/.kube

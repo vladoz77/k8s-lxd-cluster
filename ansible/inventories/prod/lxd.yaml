@@ -1,0 +1,15 @@
+plugin: community.general.lxd
+url: https://rocky:8443
+client_cert: /home/vlad/snap/lxd/common/config/client.crt
+client_key: /home/vlad/snap/lxd/common/config/client.key
+server_cert: /home/vlad/snap/lxd/common/config/servercerts/lxd-server-rocky.crt
+state: RUNNING
+type_filter: virtual-machine
+prefered_instance_network_interface: enp   
+groupby:
+  master:
+    type: pattern
+    attribute: k8s-master
+  worker:
+    type: pattern
+    attribute: k8s-worker

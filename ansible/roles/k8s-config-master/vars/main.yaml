@@ -1,0 +1,16 @@
+# vars/main.yaml
+
+# Calico 
+calico_crds: https://raw.githubusercontent.com/projectcalico/calico/{{ calico_version }}/manifests/operator-crds.yaml
+tigera_operator: https://raw.githubusercontent.com/projectcalico/calico/{{ calico_version }}/manifests/tigera-operator.yaml
+calico_custom_resources: "kube-calico-cdr.j2"
+
+# localdns
+localdns_config: "localdns.j2"
+
+# Ebpf configurations
+kubernetes_service_endpoint: kubernetes-service-endpoint.yaml.j2
+calico_custom_resources_ebpf: kube-calico-crd-bpf.yaml.j2
+
+# Gateway API CRDs
+gateway_api_crds: "https://github.com/kubernetes-sigs/gateway-api/releases/download/{{ gateway_api_version }}/standard-install.yaml"

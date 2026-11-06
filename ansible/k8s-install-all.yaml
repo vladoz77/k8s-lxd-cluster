@@ -1,0 +1,33 @@
+# k8s-install-all.yaml
+- name: Common configuration for all nodes
+  hosts: all
+  become: true
+  gather_facts: false
+  roles:
+  - k8s-common-config
+
+- name: Configure HA and init first master
+  hosts: master
+  become: true
+  roles:
+    - role: k8s-ha-master-config
+      when: ha_enabled | bool
+    - role: k8s-config-master
+      when: inventory_hostname == k8s_first_master
+
+- name: Join other masters one by one
+  hosts: master
+  become: true
+  serial: 1
+  any_errors_fatal: true
+  roles:
+    - role: k8s-join-master
+      when:
+        - ha_enabled | bool
+        - inventory_hostname != k8s_first_master
+
+- name: Configure worker nodes
+  hosts: worker
+  become: true
+  roles:
+  - k8s-join-worker
